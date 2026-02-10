@@ -278,19 +278,46 @@
       <p>You'll do it by having a conversation with Claude — describing what you want in plain English, and letting the AI write the code. This is called <strong>vibe coding</strong>.</p>
 
       <div style="background:#f8fafc;border-radius:16px;padding:20px;border:1px solid #e2e8f0;margin-bottom:24px">
-        <div class="section-label">How this guide works</div>
-        <div class="how-it-works">
-          <div class="how-card how-card-left">
-            <div class="how-card-icon">💬</div>
-            <div class="how-card-title">Claude Code</div>
-            <div class="how-card-desc">Talk to Claude here. Paste prompts, ask questions.</div>
+        <div class="section-label">Set up your screen like this</div>
+        <p style="text-align:center;font-size:13px;color:#64748b;margin-bottom:14px">Put these two windows side by side on your desktop — you'll work between them the whole time.</p>
+        <!-- Desktop mockup -->
+        <div style="background:#1e293b;border-radius:12px;padding:10px 10px 14px;position:relative">
+          <!-- Title bar dots -->
+          <div style="display:flex;gap:5px;margin-bottom:10px;padding-left:4px">
+            <div style="width:8px;height:8px;border-radius:50%;background:#ef4444"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:#22c55e"></div>
+            <span style="font-size:10px;color:#64748b;margin-left:auto;padding-right:4px">Your desktop</span>
           </div>
-          <div class="how-arrow">↔</div>
-          <div class="how-card how-card-right">
-            <div class="how-card-icon">📖</div>
-            <div class="how-card-title">This guide</div>
-            <div class="how-card-desc">Follow along here. It explains what's happening.</div>
+          <!-- Two windows side by side -->
+          <div style="display:flex;gap:8px">
+            <!-- Left window: Claude Code terminal -->
+            <div style="flex:1;background:#0f172a;border-radius:8px;padding:12px;border:2px solid #334155">
+              <div style="font-size:10px;color:#64748b;margin-bottom:8px;font-family:monospace">Terminal — Claude Code</div>
+              <div style="font-family:monospace;font-size:11px;line-height:1.7">
+                <div style="color:#6ee7b7">$ claude</div>
+                <div style="color:#a5b4fc">╭──────────────╮</div>
+                <div style="color:#a5b4fc">│ Claude Code  │</div>
+                <div style="color:#a5b4fc">╰──────────────╯</div>
+                <div style="color:#64748b;margin-top:4px">Paste prompts here ▍</div>
+              </div>
+            </div>
+            <!-- Right window: This guide -->
+            <div style="flex:1;background:#ffffff;border-radius:8px;padding:12px;border:2px solid #7c3aed">
+              <div style="font-size:10px;color:#64748b;margin-bottom:8px">Browser — This Guide</div>
+              <div style="background:linear-gradient(90deg,#6366f1,#7c3aed);height:4px;border-radius:4px;width:30%;margin-bottom:8px"></div>
+              <div style="font-size:11px;font-weight:700;color:#1e293b;margin-bottom:4px">Your First Vibe Code</div>
+              <div style="height:4px;background:#e2e8f0;border-radius:2px;width:80%;margin-bottom:3px"></div>
+              <div style="height:4px;background:#e2e8f0;border-radius:2px;width:60%;margin-bottom:6px"></div>
+              <div style="font-size:9px;color:#7c3aed;font-weight:600">Follow steps here →</div>
+            </div>
           </div>
+          <!-- Arrow between them -->
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-20%);background:#6366f1;color:white;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px">↔</div>
+        </div>
+        <div style="display:flex;gap:16px;margin-top:12px">
+          <div style="flex:1;text-align:center;font-size:12px;color:#334155"><strong style="color:#6ee7b7">Left:</strong> Claude Code — where you paste prompts and talk to Claude</div>
+          <div style="flex:1;text-align:center;font-size:12px;color:#334155"><strong style="color:#7c3aed">Right:</strong> This guide — follow along step by step</div>
         </div>
       </div>
 
