@@ -19,16 +19,85 @@
   }
 
   .container {
-    max-width: 560px;
+    display: flex;
+    gap: 10px;
+    max-width: 680px;
     margin: 0 auto;
-    padding: 20px 16px;
+    padding: 20px 16px 20px 4px;
     min-height: 100vh;
   }
 
-  /* Progress */
-  .progress-bar { background: #e8e0d8; border-radius: 100px; height: 6px; margin-bottom: 8px; overflow: hidden; }
-  .progress-fill { background: linear-gradient(90deg, #d97706, #eba714); height: 100%; border-radius: 100px; transition: width 0.4s ease; }
-  .progress-labels { display: flex; justify-content: space-between; margin-bottom: 28px; font-size: 12px; color: #15465b; }
+  .main-col { flex: 1; min-width: 0; }
+
+  /* Section sequence rail */
+  .section-rail { width: 56px; flex-shrink: 0; padding-top: 8px; }
+  .section-rail-inner {
+    position: sticky;
+    top: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .rail-thumb {
+    width: 48px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    padding: 6px 4px 4px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font-family: 'Inter', sans-serif;
+    background: #f0ebe4;
+    color: #b8a898;
+  }
+  .rail-thumb-visual { display: flex; align-items: center; justify-content: center; height: 22px; }
+  .rail-thumb-label { font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1; text-align: center; }
+  .rail-thumb.upcoming { background: #f0ebe4; color: #b8a898; border-color: transparent; }
+  .rail-thumb.upcoming .rail-thumb-visual { opacity: 0.45; }
+  .rail-thumb.completed { background: #fef3e2; color: #b45309; border-color: #eba714; }
+  .rail-thumb.current {
+    background: #d97706; color: white;
+    border-color: #b45309;
+    box-shadow: 0 2px 8px rgba(217,119,6,0.4);
+    transform: scale(1.08);
+  }
+  .rail-connector { width: 2px; height: 4px; flex-shrink: 0; }
+  .rail-connector.completed { background: #eba714; }
+  .rail-connector.upcoming { background: #e8e0d8; }
+  .rail-thumb:hover::after {
+    content: attr(data-label);
+    position: absolute;
+    left: 54px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #081f3f;
+    color: #faf5f0;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 30;
+  }
+  .rail-thumb:hover::before {
+    content: '';
+    position: absolute;
+    left: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-right-color: #081f3f;
+    pointer-events: none;
+    z-index: 30;
+  }
+
+  /* (progress bar removed — rail handles navigation) */
 
   /* Step header */
   .step-header { margin-bottom: 24px; }
@@ -46,7 +115,7 @@
     position: sticky;
     top: 0;
     background: #faf5f0;
-    padding: 0 0 12px;
+    padding: 8px 0 12px;
     z-index: 10;
   }
   .nav-header::after {
@@ -68,12 +137,6 @@
   .btn:hover { opacity: 0.9; }
   .btn-back { flex: 1; border: 1px solid #e8e0d8; background: white; color: #15465b; }
   .btn-next { flex: 2; background: #d97706; color: white; }
-
-  /* Step dots */
-  .dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
-  .dot { width: 8px; height: 8px; border-radius: 100px; border: none; cursor: pointer; padding: 0; transition: all 0.3s ease; background: #e8e0d8; }
-  .dot.active { width: 24px; background: #d97706; }
-  .dot.completed { background: #eba714; }
 
   /* Reusable blocks */
   .callout { padding: 16px 20px; border-radius: 0 12px 12px 0; margin-bottom: 20px; }
@@ -284,11 +347,14 @@
 </head>
 <body>
 <div class="container">
+  <!-- Section sequence rail -->
+  <div class="section-rail">
+    <div class="section-rail-inner" id="sectionRail"></div>
+  </div>
+
+  <div class="main-col">
   <!-- Fixed navigation header -->
   <div class="nav-header">
-    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:11.1%"></div></div>
-    <div class="progress-labels"><span id="stepLabel">Step 1 of 9</span><span id="stepName">Your First Vibe Code</span></div>
-    <div class="dots" id="dots"></div>
     <div class="nav">
       <button class="btn btn-back" id="btnBack" onclick="prevStep()" style="display:none">Back</button>
       <button class="btn btn-next" id="btnNext" onclick="nextStep()">Let's go</button>
@@ -824,7 +890,7 @@
 
   </div>
 
-  </div>
+  </div><!-- /main-col -->
 </div>
 
 <script>
@@ -842,13 +908,44 @@ const STEPS = [
 
 let currentStep = 0;
 
-// Init dots
-const dotsEl = document.getElementById("dots");
-STEPS.forEach((_, i) => {
-  const dot = document.createElement("button");
-  dot.className = "dot" + (i === 0 ? " active" : "");
-  dot.onclick = () => goToStep(i);
-  dotsEl.appendChild(dot);
+// Thumbnail data for the section rail
+const RAIL_THUMBS = [
+  { label: "Start",
+    visual: '<div style="display:flex;gap:2px"><div style="width:13px;height:15px;border-radius:2px;border:1.5px solid currentColor;opacity:0.5"></div><div style="width:13px;height:15px;border-radius:2px;border:1.5px solid currentColor"></div></div>' },
+  { label: "Files",
+    visual: '<div style="width:26px;display:flex;flex-direction:column;gap:2px"><div style="height:2px;background:currentColor;border-radius:1px"></div><div style="height:2px;background:currentColor;border-radius:1px;width:72%;margin-left:5px;opacity:0.6"></div><div style="height:2px;background:currentColor;border-radius:1px;width:72%;margin-left:5px;opacity:0.6"></div><div style="height:2px;background:currentColor;border-radius:1px;width:50%;margin-left:10px;opacity:0.4"></div></div>' },
+  { label: "Plan",
+    visual: '<div style="width:26px;display:flex;flex-direction:column;gap:2px"><div style="display:flex;gap:3px;align-items:center"><div style="width:8px;height:4px;border-radius:1px;background:currentColor"></div><div style="flex:1;height:2px;background:currentColor;opacity:0.3;border-radius:1px"></div></div><div style="display:flex;gap:3px;align-items:center"><div style="width:8px;height:4px;border-radius:1px;background:currentColor;opacity:0.8"></div><div style="flex:1;height:2px;background:currentColor;opacity:0.3;border-radius:1px"></div></div><div style="display:flex;gap:3px;align-items:center"><div style="width:8px;height:4px;border-radius:1px;background:currentColor;opacity:0.6"></div><div style="flex:1;height:2px;background:currentColor;opacity:0.3;border-radius:1px"></div></div></div>' },
+  { label: "Prompt",
+    visual: '<div style="width:28px;height:16px;background:currentColor;opacity:0.15;border-radius:3px;position:relative;overflow:hidden"><div style="position:absolute;top:4px;left:4px;width:10px;height:2px;background:currentColor;opacity:1;border-radius:1px"></div><div style="position:absolute;top:9px;left:4px;width:16px;height:2px;background:currentColor;opacity:0.5;border-radius:1px"></div></div>' },
+  { label: "Allow",
+    visual: '<div style="position:relative;width:28px;height:18px"><div style="position:absolute;bottom:8px;left:3px;right:3px;height:8px;border:1.5px solid currentColor;border-radius:2px;opacity:0.25"></div><div style="position:absolute;bottom:4px;left:1.5px;right:1.5px;height:8px;border:1.5px solid currentColor;border-radius:2px;opacity:0.5"></div><div style="position:absolute;bottom:0;left:0;right:0;height:8px;border:1.5px solid currentColor;border-radius:2px"></div></div>' },
+  { label: "Live",
+    visual: '<div style="width:28px;height:16px;border:1.5px solid currentColor;border-radius:3px;overflow:hidden"><div style="height:5px;border-bottom:1px solid currentColor;display:flex;align-items:center;padding-left:2px;gap:1.5px"><div style="width:2.5px;height:2.5px;border-radius:50%;background:currentColor"></div><div style="width:2.5px;height:2.5px;border-radius:50%;background:currentColor;opacity:0.5"></div></div></div>' },
+  { label: "Tweak",
+    visual: '<div style="width:18px;height:18px;border:2px solid currentColor;border-radius:50%;border-top-color:transparent;position:relative"><div style="position:absolute;top:-2px;right:4px;width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-bottom:4px solid currentColor"></div></div>' },
+  { label: "Ship",
+    visual: '<div style="display:flex;align-items:center;gap:1px"><div style="width:7px;height:7px;border-radius:50%;background:currentColor"></div><div style="width:3px;height:1.5px;background:currentColor;opacity:0.4"></div><div style="width:7px;height:7px;border-radius:50%;background:currentColor;opacity:0.6"></div><div style="width:3px;height:1.5px;background:currentColor;opacity:0.4"></div><div style="width:7px;height:7px;border-radius:50%;background:currentColor;opacity:0.35"></div></div>' },
+  { label: "Done",
+    visual: '<div style="font-size:16px;line-height:1">&#9733;</div>' },
+];
+
+// Init section rail
+const railEl = document.getElementById("sectionRail");
+STEPS.forEach((step, i) => {
+  if (i > 0) {
+    const conn = document.createElement("div");
+    conn.className = "rail-connector upcoming";
+    conn.id = "rail-conn-" + i;
+    railEl.appendChild(conn);
+  }
+  const thumb = document.createElement("button");
+  thumb.className = "rail-thumb" + (i === 0 ? " current" : " upcoming");
+  thumb.id = "rail-thumb-" + i;
+  thumb.setAttribute("data-label", step.title);
+  thumb.innerHTML = '<div class="rail-thumb-visual">' + RAIL_THUMBS[i].visual + '</div><div class="rail-thumb-label">' + RAIL_THUMBS[i].label + '</div>';
+  thumb.onclick = () => goToStep(i);
+  railEl.appendChild(thumb);
 });
 
 // Init prompt
@@ -862,9 +959,6 @@ function goToStep(n) {
   // Update header
   document.getElementById("stepTitle").textContent = STEPS[n].title;
   document.getElementById("stepSubtitle").textContent = STEPS[n].subtitle;
-  document.getElementById("stepLabel").textContent = "Step " + (n + 1) + " of " + STEPS.length;
-  document.getElementById("stepName").textContent = STEPS[n].title;
-  document.getElementById("progressFill").style.width = (((n + 1) / STEPS.length) * 100) + "%";
 
   // Update nav
   document.getElementById("btnBack").style.display = n > 0 ? "" : "none";
@@ -876,10 +970,14 @@ function goToStep(n) {
     btnNext.textContent = n === 0 ? "Let's go" : "Next step";
   }
 
-  // Update dots
-  const dots = dotsEl.querySelectorAll(".dot");
-  dots.forEach((d, i) => {
-    d.className = "dot" + (i === n ? " active" : i < n ? " completed" : "");
+  // Update section rail
+  STEPS.forEach((_, i) => {
+    const thumb = document.getElementById("rail-thumb-" + i);
+    if (thumb) thumb.className = "rail-thumb " + (i < n ? "completed" : i === n ? "current" : "upcoming");
+    if (i > 0) {
+      const conn = document.getElementById("rail-conn-" + i);
+      if (conn) conn.className = "rail-connector " + (i <= n ? "completed" : "upcoming");
+    }
   });
 
   // Scroll to top
